@@ -1,0 +1,167 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class Main extends JFrame {
+
+    // Define the scaling factor here for easy adjustment
+    private static final int SCALING_FACTOR = 4; // 4 means 25% of original size
+
+    private ArrayList<JLabel> bodyLabels = new ArrayList<>();
+    private ArrayList<JLabel> pickguardLabels = new ArrayList<>();
+    private ArrayList<JLabel> bridgeLabels = new ArrayList<>();
+    private ArrayList<JLabel> pickupLabels = new ArrayList<>();
+
+    public Main() {
+        // List of image filenames (grouped by category)
+        String[] bodyImages = {
+                "Blue Matte Finish Body.png", "Red Matte Finish Body.png", "White Matte Finish Body.png"
+        };
+        String[] pickguardImages = {
+                "Black Pearloid Hybrid Pickguard.png", "Red Pearloid Pickguard.png", "White Pearloid Pickguard.png"
+        };
+        String[] bridgeImages = {
+                "Bridge Humbucker.png", "Vintage Ashtray Bridge.png", "Modern Ashtray Bridge.png", "Fixed Bridge.png"
+        };
+        String[] pickupImages = {
+                "Neck Humbucker.png", "Bridge Humbucker.png"
+        };
+
+        // Set up the JFrame
+        setTitle("Stacked Images Display with Layer Toggle");
+        setSize(1920, 1080); // Fixed size of the window
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout()); // Use BorderLayout for better control
+
+        // Create a JLayeredPane to manage the images
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(1920, 1080)); // Set the preferred size for the layered pane
+        add(layeredPane, BorderLayout.CENTER); // Add the layeredPane to the center of the window
+
+        int layer = 0; // Starting layer for the images
+        int xOffset = 200; // Fixed x position where all images will align
+        int yOffset = 50; // Starting position for the first image (higher up, closer to the top)
+
+        // Load all images into the layered pane
+        try {
+            String[][] imageGroups = {bodyImages, pickguardImages, bridgeImages, pickupImages};
+            ArrayList<JLabel>[] labelGroups = new ArrayList[] {bodyLabels, pickguardLabels, bridgeLabels, pickupLabels};
+            for (int group = 0; group < imageGroups.length; group++) {
+                for (int i = 0; i < imageGroups[group].length; i++) {
+                    String imageName = imageGroups[group][i];
+                    String imagePath = "E:/JAVA PROJS 1st Sem/DSA/Case Study/src/Resources/" + imageName;
+                    System.out.println("Attempting to load image from: " + imagePath);
+                    File imgFile = new File(imagePath);
+
+                    if (imgFile.exists()) {
+                        BufferedImage image = ImageIO.read(imgFile);
+                        if (image != null) {
+                            // Scale the image based on the SCALING_FACTOR
+                            int newWidth = image.getWidth() / SCALING_FACTOR; // Scaling the width
+                            int newHeight = image.getHeight() / SCALING_FACTOR; // Scaling the height
+
+                            // Scale the image
+                            Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+
+                            // Create a new BufferedImage from the scaled image
+                            BufferedImage scaledBufferedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+                            Graphics2D g2d = scaledBufferedImage.createGraphics();
+                            g2d.drawImage(scaledImage, 0, 0, null);
+                            g2d.dispose();
+
+                            // Create a JLabel to hold the image and add it to the layered pane
+                            ImageIcon imageIcon = new ImageIcon(scaledBufferedImage);
+                            JLabel label = new JLabel(imageIcon);
+
+                            // Position the label at the fixed xOffset and the adjusted yOffset
+                            label.setBounds(xOffset, yOffset, imageIcon.getIconWidth(), imageIcon.getIconHeight());
+
+                            // Add the label to the layered pane at the current layer
+                            layeredPane.add(label, new Integer(layer));
+
+                            // Add this label to the appropriate group
+                            labelGroups[group].add(label);
+
+                            // Increment the layer (don't need to change yOffset anymore for true overlap)
+                            layer++;
+                        } else {
+                            System.out.println("Failed to load image (not a valid image): " + imageName);
+                        }
+                    } else {
+                        System.out.println("File not found: " + imagePath);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Create a JPanel to hold the controls (radio buttons)
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS)); // Stack vertically
+        controlPanel.setPreferredSize(new Dimension(200, 1080)); // Fixed width for the control panel
+        add(controlPanel, BorderLayout.EAST); // Add the control panel to the right side of the window
+
+        // Add Body section with horizontally aligned radio buttons
+        JPanel bodyPanel = createHorizontalControlPanelSection("Body", bodyImages, bodyLabels);
+        controlPanel.add(bodyPanel);
+
+        // Add Pickguard section with horizontally aligned radio buttons
+        JPanel pickguardPanel = createHorizontalControlPanelSection("Pickguard", pickguardImages, pickguardLabels);
+        controlPanel.add(pickguardPanel);
+
+        // Add Bridge section with horizontally aligned radio buttons
+        JPanel bridgePanel = createHorizontalControlPanelSection("Bridge", bridgeImages, bridgeLabels);
+        controlPanel.add(bridgePanel);
+
+        // Add Pickups section with horizontally aligned radio buttons
+        JPanel pickupsPanel = createHorizontalControlPanelSection("Pickups", pickupImages, pickupLabels);
+        controlPanel.add(pickupsPanel);
+
+        // Ensure the JFrame is large enough to display all images
+        setPreferredSize(new Dimension(1920, 1080));
+        pack(); // This will ensure the frame size is adjusted based on the preferred size
+    }
+
+    private JPanel createHorizontalControlPanelSection(String label, String[] imageGroup, ArrayList<JLabel> imageLabels) {
+        JPanel sectionPanel = new JPanel();
+        sectionPanel.setLayout(new FlowLayout(FlowLayout.LEFT)); // FlowLayout to align horizontally
+
+        // Add section label
+        sectionPanel.add(new JLabel(label));
+
+        // Add radio buttons for each image in the group
+        for (int i = 0; i < imageGroup.length; i++) {
+            // For a cleaner label, strip the extension and format the string
+            String cleanLabel = imageGroup[i].replace(".png", "").replaceAll("([A-Z])", " $1").trim();
+
+            JRadioButton radioButton = new JRadioButton(cleanLabel);
+            int index = i; // Necessary to pass the index inside the lambda expression
+            radioButton.setSelected(true); // Set to true by default (images are visible)
+
+            // Add an action listener to toggle the visibility of the image
+            radioButton.addActionListener(e -> {
+                // Toggle the visibility of the image
+                boolean isSelected = radioButton.isSelected();
+                imageLabels.get(index).setVisible(isSelected);
+            });
+
+            sectionPanel.add(radioButton);
+        }
+
+        return sectionPanel;
+    }
+
+    public static void main(String[] args) {
+        // Run the program in the event-dispatching thread to ensure thread safety with Swing
+        SwingUtilities.invokeLater(() -> {
+            Main frame = new Main();
+            frame.setVisible(true);
+        });
+    }
+}
