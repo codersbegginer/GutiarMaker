@@ -1,7 +1,7 @@
 import encapsulation.AccountCredentials;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class LoginForm extends JFrame implements ActionListener{
 
@@ -15,14 +15,14 @@ public class LoginForm extends JFrame implements ActionListener{
                 counterLabel = new JLabel("Please wait for: "),
                 attemptLabel = new JLabel("Attempts Made: "),
 
-                      advert = new JLabel(new ImageIcon("C:\\Users\\cesar\\OneDrive\\Desktop\\Case Study\\src\\Images\\advert.jpg")),
-                        logo = new JLabel(new ImageIcon("C:\\Users\\cesar\\OneDrive\\Desktop\\Case Study\\src\\Images\\sampleLogo.jpg"));
-
+                      advert = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("Resources/logo/loginform design.png"))),
+                        logo = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("Resources/logo/MainLogo.png")));                         
+    
     JButton     forgotButton = new JButton("Forgot Password?"),
                  loginButton = new JButton("LOG IN"),
                 signUpButton = new JButton("SIGN UP"),
               showPassButton = new JButton("X"),
-                   clickHere = new JButton("Click Here");
+                   clickHere = new JButton("Click Here");   
 
     JTextField      username = new JTextField();
     JPasswordField  password = new JPasswordField();
