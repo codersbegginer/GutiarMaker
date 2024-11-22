@@ -5,6 +5,7 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Main extends JFrame {
 
@@ -17,23 +18,14 @@ public class Main extends JFrame {
     private JLabel electronicsPlateLabel = null; // Store the electronics plate label here
 
     public Main() {
-        String[] bodyImages = {
-                "Blue Matte Finish Body.png", "Red Matte Finish Body.png", "White Matte Finish Body.png",
-                "Green Matte Finish Body.png", "Daphne Blue Body.png", "Shell Pink Body.png",
-                "Silver Body.png", "Quilted Maple Top.png"
-        };
-        String[] pickguardImages = {
-                "Black Pearl Pickguard.png", "Black Pearloid Hybrid Pickguard.png", "Red Pearloid Pickguard.png",
-                "White Pearloid Pickguard.png", "Purple Swirl Resin Pickguard.png", "White Hybrid Pickguard.png",
-                "Red Tortoise Pickguard.png", "White Pickguard.png", "Blue Pearl Pickguard.png"
-        };
-        String[] bridgeImages = {
-                "Bridge Humbucker.png", "Vintage Ashtray Bridge.png", "Modern Ashtray Bridge.png",
-                "Fixed Bridge.png", "Modern Fixed Bridge.png"
-        };
-        String[] pickupImages = {
-                "Neck Humbucker.png", "Bridge Humbucker.png"
-        };
+        HashMap<String, ArrayList<String>> categorizedImages = loadImagesFromDirectory(
+                "E:/JAVA PROJS 1st Sem/DSA/Case Study/src/Resources/TelecasterParts"
+        );
+
+        ArrayList<String> bodyImages = categorizedImages.getOrDefault("Body", new ArrayList<>());
+        ArrayList<String> pickguardImages = categorizedImages.getOrDefault("Pickguard", new ArrayList<>());
+        ArrayList<String> bridgeImages = categorizedImages.getOrDefault("Bridge", new ArrayList<>());
+        ArrayList<String> pickupImages = categorizedImages.getOrDefault("Pickup", new ArrayList<>());
 
         setTitle("Stacked Images Display with Layer Toggle");
         setSize(1920, 1080);
@@ -50,11 +42,23 @@ public class Main extends JFrame {
         int yOffset = 50;
 
         try {
-            String[][] imageGroups = {bodyImages, pickguardImages, bridgeImages, pickupImages};
-            ArrayList<JLabel>[] labelGroups = new ArrayList[] {bodyLabels, pickguardLabels, bridgeLabels, pickupLabels};
-            for (int group = 0; group < imageGroups.length; group++) {
-                for (int i = 0; i < imageGroups[group].length; i++) {
-                    String imageName = imageGroups[group][i];
+            ArrayList<ArrayList<String>> imageGroups = new ArrayList<>();
+            imageGroups.add(bodyImages);
+            imageGroups.add(pickguardImages);
+            imageGroups.add(bridgeImages);
+            imageGroups.add(pickupImages);
+
+            ArrayList<ArrayList<JLabel>> labelGroups = new ArrayList<>();
+            labelGroups.add(bodyLabels);
+            labelGroups.add(pickguardLabels);
+            labelGroups.add(bridgeLabels);
+            labelGroups.add(pickupLabels);
+
+            for (int group = 0; group < imageGroups.size(); group++) {
+                ArrayList<String> images = imageGroups.get(group);
+                ArrayList<JLabel> labels = labelGroups.get(group);
+
+                for (String imageName : images) {
                     String imagePath = "E:/JAVA PROJS 1st Sem/DSA/Case Study/src/Resources/TelecasterParts/" + imageName;
                     File imgFile = new File(imagePath);
 
@@ -79,7 +83,7 @@ public class Main extends JFrame {
 
                             label.setBounds(xOffset, yOffset, imageIcon.getIconWidth(), imageIcon.getIconHeight());
                             layeredPane.add(label, new Integer(layer));
-                            labelGroups[group].add(label);
+                            labels.add(label);
                             layer++;
                         } else {
                             System.out.println("Failed to load image (not a valid image): " + imageName);
@@ -89,39 +93,6 @@ public class Main extends JFrame {
                     }
                 }
             }
-
-            // Add Electronics Plate image here, always on top
-            String electronicsPlateImage = "Electronics Plate.png";  // Add the correct path to the electronics plate image
-            String electronicsPlatePath = "E:/JAVA PROJS 1st Sem/DSA/Case Study/src/Resources/TelecasterParts/" + electronicsPlateImage;
-            File electronicsPlateFile = new File(electronicsPlatePath);
-
-            if (electronicsPlateFile.exists()) {
-                BufferedImage electronicsPlateImageBuffered = ImageIO.read(electronicsPlateFile);
-                if (electronicsPlateImageBuffered != null) {
-                    int originalWidth = electronicsPlateImageBuffered.getWidth();
-                    int originalHeight = electronicsPlateImageBuffered.getHeight();
-
-                    int newWidth = originalWidth / SCALING_FACTOR;
-                    int newHeight = originalHeight / SCALING_FACTOR;
-
-                    Image scaledImage = electronicsPlateImageBuffered.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-
-                    BufferedImage scaledBufferedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D g2d = scaledBufferedImage.createGraphics();
-                    g2d.drawImage(scaledImage, 0, 0, null);
-                    g2d.dispose();
-
-                    ImageIcon electronicsPlateIcon = new ImageIcon(scaledBufferedImage);
-                    electronicsPlateLabel = new JLabel(electronicsPlateIcon);
-                    electronicsPlateLabel.setBounds(xOffset, yOffset, electronicsPlateIcon.getIconWidth(), electronicsPlateIcon.getIconHeight());
-
-                    // Add it to the layered pane with a very high layer to ensure it is always on top
-                    layeredPane.add(electronicsPlateLabel, new Integer(1000)); // Use a high value like 1000 to ensure it's on top
-                    electronicsPlateLabel.setVisible(true); // Always visible
-                    layer++;
-                }
-            }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -144,7 +115,35 @@ public class Main extends JFrame {
         pack();
     }
 
-    private JPanel createHorizontalControlPanelSection(String label, String[] imageGroup, ArrayList<JLabel> imageLabels) {
+    private HashMap<String, ArrayList<String>> loadImagesFromDirectory(String directoryPath) {
+        HashMap<String, ArrayList<String>> categorizedImages = new HashMap<>();
+        categorizedImages.put("Body", new ArrayList<>());
+        categorizedImages.put("Pickguard", new ArrayList<>());
+        categorizedImages.put("Bridge", new ArrayList<>());
+        categorizedImages.put("Pickup", new ArrayList<>());
+
+        File dir = new File(directoryPath);
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles((d, name) -> name.endsWith(".png") || name.endsWith(".jpg"));
+            if (files != null) {
+                for (File file : files) {
+                    String fileName = file.getName();
+                    if (fileName.contains("Body")) {
+                        categorizedImages.get("Body").add(fileName);
+                    } else if (fileName.contains("Pickguard")) {
+                        categorizedImages.get("Pickguard").add(fileName);
+                    } else if (fileName.contains("Bridge")) {
+                        categorizedImages.get("Bridge").add(fileName);
+                    } else if (fileName.contains("Pickup")) {
+                        categorizedImages.get("Pickup").add(fileName);
+                    }
+                }
+            }
+        }
+        return categorizedImages;
+    }
+
+    private JPanel createHorizontalControlPanelSection(String label, ArrayList<String> imageGroup, ArrayList<JLabel> imageLabels) {
         JPanel sectionPanel = new JPanel();
         sectionPanel.setLayout(new BoxLayout(sectionPanel, BoxLayout.Y_AXIS));
 
@@ -166,7 +165,7 @@ public class Main extends JFrame {
         radioPanel.setVisible(false);
 
         ButtonGroup buttonGroup = new ButtonGroup();
-        for (int i = 0; i < imageGroup.length; i++) {
+        for (int i = 0; i < imageGroup.size(); i++) {
             JRadioButton radioButton = new JRadioButton();
             int index = i;
             radioButton.addActionListener(e -> {
