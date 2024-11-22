@@ -15,11 +15,10 @@ public class Main extends JFrame {
     private ArrayList<JLabel> pickguardLabels = new ArrayList<>();
     private ArrayList<JLabel> bridgeLabels = new ArrayList<>();
     private ArrayList<JLabel> pickupLabels = new ArrayList<>();
-    private JLabel electronicsPlateLabel = null; // Store the electronics plate label here
 
     public Main() {
         HashMap<String, ArrayList<String>> categorizedImages = loadImagesFromDirectory(
-                "E:/JAVA PROJS 1st Sem/DSA/Case Study/src/Resources/TelecasterParts"
+                "Resources/TelecasterParts"
         );
 
         ArrayList<String> bodyImages = categorizedImages.getOrDefault("Body", new ArrayList<>());
@@ -37,17 +36,25 @@ public class Main extends JFrame {
         layeredPane.setPreferredSize(new Dimension(1920, 1080));
         add(layeredPane, BorderLayout.CENTER);
 
-        int layer = 0;
-        int xOffset = 200;
-        int yOffset = 50;
+        // Set offsets for positioning of images
+        int xOffset = 200; // Initial horizontal position
+        int yOffset = 50;  // Initial vertical position
+
+        // Layer indices
+        int bodyLayer = 0;        // Body at the bottom
+        int pickguardLayer = 1;   // Pickguard above body
+        int pickupLayer = 2;      // Pickups above pickguard and body
+        int bridgeLayer = 3;      // Optional, for bridges (if needed)
 
         try {
+            // Grouped image data (Body, Pickguard, etc.)
             ArrayList<ArrayList<String>> imageGroups = new ArrayList<>();
-            imageGroups.add(bodyImages);
-            imageGroups.add(pickguardImages);
-            imageGroups.add(bridgeImages);
-            imageGroups.add(pickupImages);
+            imageGroups.add(bodyImages);       // Body
+            imageGroups.add(pickguardImages);  // Pickguard
+            imageGroups.add(bridgeImages);     // Bridge (if applicable)
+            imageGroups.add(pickupImages);     // Pickups
 
+            // Grouped label containers
             ArrayList<ArrayList<JLabel>> labelGroups = new ArrayList<>();
             labelGroups.add(bodyLabels);
             labelGroups.add(pickguardLabels);
@@ -58,42 +65,67 @@ public class Main extends JFrame {
                 ArrayList<String> images = imageGroups.get(group);
                 ArrayList<JLabel> labels = labelGroups.get(group);
 
+                // Manually assign layers for each group
+                int layer = 0; // Default layer value
+                if (group == 0) {
+                    layer = bodyLayer; // Body
+                } else if (group == 1) {
+                    layer = pickguardLayer; // Pickguard
+                } else if (group == 2) {
+                    layer = pickupLayer; // Pickup
+                } else if (group == 3) {
+                    layer = bridgeLayer; // Bridge
+                }
+
                 for (String imageName : images) {
-                    String imagePath = "E:/JAVA PROJS 1st Sem/DSA/Case Study/src/Resources/TelecasterParts/" + imageName;
+                    String imagePath = "Resources/TelecasterParts/" + imageName;
                     File imgFile = new File(imagePath);
 
                     if (imgFile.exists()) {
-                        BufferedImage image = ImageIO.read(imgFile);
-                        if (image != null) {
-                            int originalWidth = image.getWidth();
-                            int originalHeight = image.getHeight();
+                        try {
+                            BufferedImage image = ImageIO.read(imgFile);
+                            if (image != null) {
+                                // Check if image has transparency (PNG with alpha channel)
+                                if (image.getColorModel().hasAlpha()) {
+                                    // Scale image while maintaining transparency
+                                    int newWidth = image.getWidth() / SCALING_FACTOR;
+                                    int newHeight = image.getHeight() / SCALING_FACTOR;
+                                    Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                                    ImageIcon imageIcon = new ImageIcon(scaledImage);
 
-                            int newWidth = originalWidth / SCALING_FACTOR;
-                            int newHeight = originalHeight / SCALING_FACTOR;
+                                    // Create label and set bounds (same xOffset, yOffset for stacking)
+                                    JLabel label = new JLabel(imageIcon);
+                                    label.setBounds(xOffset, yOffset, newWidth, newHeight);
+                                    label.setOpaque(false); // Set label to not have background
 
-                            Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                                    // Add label to layered pane with the layer parameter
+                                    layeredPane.add(label, new Integer(layer));
+                                    labels.add(label);
 
-                            BufferedImage scaledBufferedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-                            Graphics2D g2d = scaledBufferedImage.createGraphics();
-                            g2d.drawImage(scaledImage, 0, 0, null);
-                            g2d.dispose();
+                                    // Debugging: Log successful addition
+                                    System.out.println("Added image to layer " + layer + ": " + imageName);
 
-                            ImageIcon imageIcon = new ImageIcon(scaledBufferedImage);
-                            JLabel label = new JLabel(imageIcon);
-
-                            label.setBounds(xOffset, yOffset, imageIcon.getIconWidth(), imageIcon.getIconHeight());
-                            layeredPane.add(label, new Integer(layer));
-                            labels.add(label);
-                            layer++;
-                        } else {
-                            System.out.println("Failed to load image (not a valid image): " + imageName);
+                                } else {
+                                    System.out.println("Image does not have transparency: " + imageName);
+                                }
+                            } else {
+                                System.out.println("Failed to load image (not a valid image): " + imageName);
+                            }
+                        } catch (IOException e) {
+                            System.out.println("Error loading image: " + imageName);
+                            e.printStackTrace();
                         }
                     } else {
                         System.out.println("File not found: " + imagePath);
                     }
                 }
             }
-        } catch (IOException e) {
+
+            // Revalidate and repaint the layered pane after all images have been added
+            layeredPane.revalidate();
+            layeredPane.repaint();
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -123,50 +155,51 @@ public class Main extends JFrame {
         categorizedImages.put("Pickup", new ArrayList<>());
 
         File dir = new File(directoryPath);
-        if (dir.exists() && dir.isDirectory()) {
-            File[] files = dir.listFiles((d, name) -> name.endsWith(".png") || name.endsWith(".jpg"));
-            if (files != null) {
-                for (File file : files) {
-                    String fileName = file.getName();
-                    if (fileName.contains("Body")) {
-                        categorizedImages.get("Body").add(fileName);
-                    } else if (fileName.contains("Pickguard")) {
-                        categorizedImages.get("Pickguard").add(fileName);
-                    } else if (fileName.contains("Bridge")) {
-                        categorizedImages.get("Bridge").add(fileName);
-                    } else if (fileName.contains("Pickup")) {
-                        categorizedImages.get("Pickup").add(fileName);
-                    }
-                }
+
+        if (!dir.exists() || !dir.isDirectory()) {
+            System.out.println("Directory not found or invalid: " + directoryPath);
+            return categorizedImages;
+        }
+
+        File[] files = dir.listFiles((d, name) -> {
+            String lowerCaseName = name.toLowerCase();
+            return lowerCaseName.endsWith(".png") || lowerCaseName.endsWith(".jpg");
+        });
+
+        if (files == null || files.length == 0) {
+            System.out.println("No image files found in directory: " + directoryPath);
+            return categorizedImages;
+        }
+
+        // Categorizing files based on their names
+        for (File file : files) {
+            String fileName = file.getName().toLowerCase(); // Case-insensitive matching
+            if (fileName.contains("body")) {
+                categorizedImages.get("Body").add(file.getName());
+            } else if (fileName.contains("pickguard")) {
+                categorizedImages.get("Pickguard").add(file.getName());
+            } else if (fileName.contains("bridge")) {
+                categorizedImages.get("Bridge").add(file.getName());
+            } else if (fileName.contains("pickup")) {
+                categorizedImages.get("Pickup").add(file.getName());
+            } else {
+                System.out.println("Uncategorized file: " + file.getName());
             }
         }
+
         return categorizedImages;
     }
 
     private JPanel createHorizontalControlPanelSection(String label, ArrayList<String> imageGroup, ArrayList<JLabel> imageLabels) {
-        JPanel sectionPanel = new JPanel();
-        sectionPanel.setLayout(new BoxLayout(sectionPanel, BoxLayout.Y_AXIS));
-
+        JPanel sectionPanel = new JPanel(new BorderLayout());
         JButton headerButton = new JButton(label);
-        headerButton.setFont(new Font("Arial", Font.BOLD, 16));
-        headerButton.setBackground(new Color(255, 253, 208));
-        headerButton.setOpaque(true);
-        headerButton.setBorderPainted(false);
-        headerButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sectionPanel.add(headerButton, BorderLayout.NORTH);
 
-        Dimension buttonSize = new Dimension(400, headerButton.getPreferredSize().height);
-        headerButton.setPreferredSize(buttonSize);
-        headerButton.setMaximumSize(buttonSize);
-
-        sectionPanel.add(headerButton);
-
-        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        radioPanel.setPreferredSize(new Dimension(400, 100));
-        radioPanel.setVisible(false);
-
+        JPanel radioPanel = new JPanel(new GridLayout(0, 1));
         ButtonGroup buttonGroup = new ButtonGroup();
+
         for (int i = 0; i < imageGroup.size(); i++) {
-            JRadioButton radioButton = new JRadioButton();
+            JRadioButton radioButton = new JRadioButton(imageGroup.get(i));
             int index = i;
             radioButton.addActionListener(e -> {
                 for (int j = 0; j < imageLabels.size(); j++) {
