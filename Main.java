@@ -85,6 +85,7 @@ public class Main extends Application {
 
         ToggleGroup toggleGroup = new ToggleGroup();
         VBox radioButtonBox = new VBox();
+        radioButtonBox.setSpacing(10); // Add some spacing between buttons
 
         for (int i = 0; i < imagePaths.size(); i++) {
             String fileName = imagePaths.get(i);
@@ -97,12 +98,12 @@ public class Main extends Application {
             }
 
             ImageView iconImageView = new ImageView(image);
-            iconImageView.setFitWidth(50);  // Set a smaller size for the image
-            iconImageView.setFitHeight(50);
+            iconImageView.setFitWidth(100);  // Increase size for the image
+            iconImageView.setFitHeight(100); // Increase size for the image
             iconImageView.setPreserveRatio(true); // Maintain aspect ratio
 
             // Create a Circle to wrap the image
-            Circle circle = new Circle(30);  // Circle with a radius of 30
+            Circle circle = new Circle(50);  // Increase the circle size
             circle.setFill(Color.WHITE);  // Set the circle background color
             circle.setStroke(Color.BLACK);  // Set a black stroke around the circle
             circle.setStrokeWidth(2);
@@ -113,7 +114,6 @@ public class Main extends Application {
             // Create a radio button with this image icon inside a circle
             RadioButton radioButton = new RadioButton();
             radioButton.setGraphic(iconImageView);  // Set the circle with image as graphic for the radio button
-            radioButton.setToggleGroup(toggleGroup);
 
             // Add text to the button for reference
             Label labelText = new Label("Image " + (i + 1));  // Display text like "Image 1"
@@ -134,6 +134,8 @@ public class Main extends Application {
                 }
             });
 
+            // Make sure the radio buttons are visible and have some space between them
+            radioButton.setVisible(true);  // Ensure radio button is visible
             radioButtonBox.getChildren().add(radioButton);
         }
 
@@ -144,8 +146,6 @@ public class Main extends Application {
 
         return sectionBox;
     }
-
-
 
     private HashMap<String, ArrayList<String>> loadImagesFromDirectory(String directoryPath) {
         HashMap<String, ArrayList<String>> categorizedImages = new HashMap<>();

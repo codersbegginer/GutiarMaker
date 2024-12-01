@@ -22,9 +22,9 @@
     -fx-padding: 10px;
     -fx-alignment: center-left; /* Align the content to the left */
     -fx-background-color: transparent;
-    -fx-opacity: 0; /* Make radio button itself invisible */
-    -fx-pref-width: 100px;
-    -fx-pref-height: 100px;
+    -fx-pref-width: 120px; /* Make the button larger */
+    -fx-pref-height: 120px; /* Make the button larger */
+    -fx-opacity: 1; /* Make the radio button always visible */
 }
 
 /* Style the graphic of the radio button (the image) */
@@ -32,15 +32,15 @@
     -fx-padding: 0;
     -fx-background-radius: 50%;  /* Ensure the image is inside a circle */
     -fx-background-color: transparent;
-    -fx-pref-width: 80px;
-    -fx-pref-height: 80px;
+    -fx-pref-width: 100px; /* Increase the size of the image */
+    -fx-pref-height: 100px; /* Increase the size of the image */
     -fx-alignment: center-left;  /* Align the image and text to the left */
 }
 
 /* Ensure the image fits inside the circle */
 .radio-button .graphic img {
-    -fx-fit-width: 80px;
-    -fx-fit-height: 80px;
+    -fx-fit-width: 100px;  /* Make the image larger */
+    -fx-fit-height: 100px; /* Make the image larger */
 }
 
 /* Style the label text next to the image */
@@ -50,17 +50,6 @@
 }
 
 /* Style the VBox holding the radio buttons */
-.radio-button .graphic {
-    -fx-alignment: center-left;
-    -fx-spacing: 10px;
-}
-
-/* Ensure a clean look for the radio button container */
-.radio-button:hover {
-    -fx-opacity: 1; /* Restore opacity when hovered */
-}
-
-/* Add the necessary padding and layout for the VBox */
 .vbox {
     -fx-alignment: top-left;
     -fx-spacing: 10px;
