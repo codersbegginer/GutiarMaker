@@ -1,151 +1,151 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.scene.shape.Circle;
+import javafx.scene.paint.Color; // Import for Color
+import javafx.geometry.Pos;  // Import for Pos
+
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Main extends JFrame {
+public class Main extends Application {
 
-    private static final int SCALING_FACTOR = 2; // 4 means 25% of original size
+    private static final int SCALING_FACTOR = 2;
 
-    private ArrayList<JLabel> bodyLabels = new ArrayList<>();
-    private ArrayList<JLabel> pickguardLabels = new ArrayList<>();
-    private ArrayList<JLabel> bridgeLabels = new ArrayList<>();
-    private ArrayList<JLabel> pickupLabels = new ArrayList<>();
+    private ArrayList<ImageView> bodyImages = new ArrayList<>();
+    private ArrayList<ImageView> pickguardImages = new ArrayList<>();
+    private ArrayList<ImageView> bridgeImages = new ArrayList<>();
+    private ArrayList<ImageView> pickupImages = new ArrayList<>();
 
-    public Main() {
-        HashMap<String, ArrayList<String>> categorizedImages = loadImagesFromDirectory(
-                "Resources/TelecasterParts"
-        );
+    @Override
+    public void start(Stage primaryStage) {
+        // Load categorized images from the directory
+        HashMap<String, ArrayList<String>> categorizedImages = loadImagesFromDirectory("Resources/TelecasterParts");
 
-        ArrayList<String> bodyImages = categorizedImages.getOrDefault("Body", new ArrayList<>());
-        ArrayList<String> pickguardImages = categorizedImages.getOrDefault("Pickguard", new ArrayList<>());
-        ArrayList<String> bridgeImages = categorizedImages.getOrDefault("Bridge", new ArrayList<>());
-        ArrayList<String> pickupImages = categorizedImages.getOrDefault("Pickup", new ArrayList<>());
+        ArrayList<String> bodyImagePaths = categorizedImages.getOrDefault("Body", new ArrayList<>());
+        ArrayList<String> pickguardImagePaths = categorizedImages.getOrDefault("Pickguard", new ArrayList<>());
+        ArrayList<String> bridgeImagePaths = categorizedImages.getOrDefault("Bridge", new ArrayList<>());
+        ArrayList<String> pickupImagePaths = categorizedImages.getOrDefault("Pickup", new ArrayList<>());
 
-        setTitle("Stacked Images Display with Layer Toggle");
-        setSize(1920, 1080);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        // Layout for the main window
+        BorderPane root = new BorderPane();
 
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setPreferredSize(new Dimension(1920, 1080));
-        add(layeredPane, BorderLayout.CENTER);
+        // Create a container to center the images on the left side
+        StackPane imagePane = new StackPane(); // Holds the images
+        root.setCenter(imagePane);
 
-        // Set offsets for positioning of images
-        int xOffset = 200; // Initial horizontal position
-        int yOffset = 50;  // Initial vertical position
+        VBox controlPanel = new VBox();
+        controlPanel.setPrefWidth(300);
+        root.setRight(controlPanel);
 
-        // Layer indices
-        int bodyLayer = 0;        // Body at the bottom
-        int pickguardLayer = 1;   // Pickguard above body
-        int pickupLayer = 2;      // Pickups above pickguard and body
-        int bridgeLayer = 3;      // Optional, for bridges (if needed)
+        // Populate image arrays and add images to the pane
+        populateImages(bodyImagePaths, bodyImages, imagePane);
+        populateImages(pickguardImagePaths, pickguardImages, imagePane);
+        populateImages(bridgeImagePaths, bridgeImages, imagePane);
+        populateImages(pickupImagePaths, pickupImages, imagePane);
 
-        try {
-            // Grouped image data (Body, Pickguard, etc.)
-            ArrayList<ArrayList<String>> imageGroups = new ArrayList<>();
-            imageGroups.add(bodyImages);       // Body
-            imageGroups.add(pickguardImages);  // Pickguard
-            imageGroups.add(bridgeImages);     // Bridge (if applicable)
-            imageGroups.add(pickupImages);     // Pickups
+        // Add control panel sections
+        controlPanel.getChildren().add(createControlPanelSection("Body", bodyImages, bodyImagePaths));
+        controlPanel.getChildren().add(createControlPanelSection("Pickguard", pickguardImages, pickguardImagePaths));
+        controlPanel.getChildren().add(createControlPanelSection("Bridge", bridgeImages, bridgeImagePaths));
+        controlPanel.getChildren().add(createControlPanelSection("Pickups", pickupImages, pickupImagePaths));
 
-            // Grouped label containers
-            ArrayList<ArrayList<JLabel>> labelGroups = new ArrayList<>();
-            labelGroups.add(bodyLabels);
-            labelGroups.add(pickguardLabels);
-            labelGroups.add(bridgeLabels);
-            labelGroups.add(pickupLabels);
+        // Set up scene and display
+        Scene scene = new Scene(root, 1200, 800);
+        scene.getStylesheets().add("style.css"); // Add CSS for styling
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Guitar Customizer");
+        primaryStage.show();
+    }
 
-            for (int group = 0; group < imageGroups.size(); group++) {
-                ArrayList<String> images = imageGroups.get(group);
-                ArrayList<JLabel> labels = labelGroups.get(group);
+    private void populateImages(ArrayList<String> imagePaths, ArrayList<ImageView> imageViews, StackPane imagePane) {
+        for (String imagePath : imagePaths) {
+            File imgFile = new File("Resources/TelecasterParts/" + imagePath);
+            if (imgFile.exists()) {
+                Image image = new Image(imgFile.toURI().toString());
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(image.getWidth() / SCALING_FACTOR);
+                imageView.setFitHeight(image.getHeight() / SCALING_FACTOR);
+                imageView.setVisible(false); // Hide initially
+                imageViews.add(imageView);
+                imagePane.getChildren().add(imageView);
+            }
+        }
+    }
 
-                // Manually assign layers for each group
-                int layer = 0; // Default layer value
-                if (group == 0) {
-                    layer = bodyLayer; // Body
-                } else if (group == 1) {
-                    layer = pickguardLayer; // Pickguard
-                } else if (group == 2) {
-                    layer = pickupLayer; // Pickup
-                } else if (group == 3) {
-                    layer = bridgeLayer; // Bridge
-                }
+    private VBox createControlPanelSection(String label, ArrayList<ImageView> imageViews, ArrayList<String> imagePaths) {
+        VBox sectionBox = new VBox();
+        TitledPane titledPane = new TitledPane();
+        titledPane.setText(label);
 
-                for (String imageName : images) {
-                    String imagePath = "Resources/TelecasterParts/" + imageName;
-                    File imgFile = new File(imagePath);
+        ToggleGroup toggleGroup = new ToggleGroup();
+        VBox radioButtonBox = new VBox();
 
-                    if (imgFile.exists()) {
-                        try {
-                            BufferedImage image = ImageIO.read(imgFile);
-                            if (image != null) {
-                                // Check if image has transparency (PNG with alpha channel)
-                                if (image.getColorModel().hasAlpha()) {
-                                    // Scale image while maintaining transparency
-                                    int newWidth = image.getWidth() / SCALING_FACTOR;
-                                    int newHeight = image.getHeight() / SCALING_FACTOR;
-                                    Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                                    ImageIcon imageIcon = new ImageIcon(scaledImage);
+        for (int i = 0; i < imagePaths.size(); i++) {
+            String fileName = imagePaths.get(i);
+            ImageView imageView = imageViews.get(i);
 
-                                    // Create label and set bounds (same xOffset, yOffset for stacking)
-                                    JLabel label = new JLabel(imageIcon);
-                                    label.setBounds(xOffset, yOffset, newWidth, newHeight);
-                                    label.setOpaque(false); // Set label to not have background
-
-                                    // Add label to layered pane with the layer parameter
-                                    layeredPane.add(label, new Integer(layer));
-                                    labels.add(label);
-
-                                    // Debugging: Log successful addition
-                                    System.out.println("Added image to layer " + layer + ": " + imageName);
-
-                                } else {
-                                    System.out.println("Image does not have transparency: " + imageName);
-                                }
-                            } else {
-                                System.out.println("Failed to load image (not a valid image): " + imageName);
-                            }
-                        } catch (IOException e) {
-                            System.out.println("Error loading image: " + imageName);
-                            e.printStackTrace();
-                        }
-                    } else {
-                        System.out.println("File not found: " + imagePath);
-                    }
-                }
+            // Create an ImageView to be used as a radio button icon
+            Image image = new Image("file:Resources/TelecasterParts/" + fileName);
+            if (image.isError()) {
+                System.out.println("Error loading image: " + fileName);
             }
 
-            // Revalidate and repaint the layered pane after all images have been added
-            layeredPane.revalidate();
-            layeredPane.repaint();
+            ImageView iconImageView = new ImageView(image);
+            iconImageView.setFitWidth(50);  // Set a smaller size for the image
+            iconImageView.setFitHeight(50);
+            iconImageView.setPreserveRatio(true); // Maintain aspect ratio
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            // Create a Circle to wrap the image
+            Circle circle = new Circle(30);  // Circle with a radius of 30
+            circle.setFill(Color.WHITE);  // Set the circle background color
+            circle.setStroke(Color.BLACK);  // Set a black stroke around the circle
+            circle.setStrokeWidth(2);
+
+            // Position the image inside the circle
+            iconImageView.setClip(circle);  // Clip the image with the circle shape
+
+            // Create a radio button with this image icon inside a circle
+            RadioButton radioButton = new RadioButton();
+            radioButton.setGraphic(iconImageView);  // Set the circle with image as graphic for the radio button
+            radioButton.setToggleGroup(toggleGroup);
+
+            // Add text to the button for reference
+            Label labelText = new Label("Image " + (i + 1));  // Display text like "Image 1"
+            radioButton.setText(labelText.getText()); // Add text to the radio button
+
+            // Use HBox to arrange image and text horizontally
+            HBox radioButtonContent = new HBox(10);  // Set spacing between image and text
+            radioButtonContent.setAlignment(Pos.CENTER_LEFT); // Align image and text to the left
+            radioButtonContent.getChildren().addAll(iconImageView, labelText); // Stack image and text horizontally
+            radioButton.setGraphic(radioButtonContent);
+
+            // Add ActionListener to toggle visibility of the images
+            int index = i; // Keep track of the index for visibility control
+            radioButton.setOnAction(e -> {
+                for (int j = 0; j < imageViews.size(); j++) {
+                    imageViews.get(j).setVisible(j == index);
+                    System.out.println("Image " + j + " visibility: " + (j == index));
+                }
+            });
+
+            radioButtonBox.getChildren().add(radioButton);
         }
 
-        JPanel controlPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        controlPanel.setPreferredSize(new Dimension(400, 1080));
-        add(controlPanel, BorderLayout.EAST);
+        titledPane.setContent(radioButtonBox);
+        titledPane.setCollapsible(true);
+        titledPane.setExpanded(false); // Collapse by default
+        sectionBox.getChildren().add(titledPane);
 
-        controlPanel.add(createHorizontalControlPanelSection("Body", bodyImages, bodyLabels), gbc);
-        controlPanel.add(createHorizontalControlPanelSection("Pickguard", pickguardImages, pickguardLabels), gbc);
-        controlPanel.add(createHorizontalControlPanelSection("Bridge", bridgeImages, bridgeLabels), gbc);
-        controlPanel.add(createHorizontalControlPanelSection("Pickups", pickupImages, pickupLabels), gbc);
-
-        setPreferredSize(new Dimension(1920, 1080));
-        pack();
+        return sectionBox;
     }
+
+
 
     private HashMap<String, ArrayList<String>> loadImagesFromDirectory(String directoryPath) {
         HashMap<String, ArrayList<String>> categorizedImages = new HashMap<>();
@@ -157,74 +157,31 @@ public class Main extends JFrame {
         File dir = new File(directoryPath);
 
         if (!dir.exists() || !dir.isDirectory()) {
-            System.out.println("Directory not found or invalid: " + directoryPath);
+            System.out.println("Directory not found: " + directoryPath);
             return categorizedImages;
         }
 
-        File[] files = dir.listFiles((d, name) -> {
-            String lowerCaseName = name.toLowerCase();
-            return lowerCaseName.endsWith(".png") || lowerCaseName.endsWith(".jpg");
-        });
+        File[] files = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
 
-        if (files == null || files.length == 0) {
-            System.out.println("No image files found in directory: " + directoryPath);
-            return categorizedImages;
-        }
-
-        // Categorizing files based on their names
-        for (File file : files) {
-            String fileName = file.getName().toLowerCase(); // Case-insensitive matching
-            if (fileName.contains("body")) {
-                categorizedImages.get("Body").add(file.getName());
-            } else if (fileName.contains("pickguard")) {
-                categorizedImages.get("Pickguard").add(file.getName());
-            } else if (fileName.contains("bridge")) {
-                categorizedImages.get("Bridge").add(file.getName());
-            } else if (fileName.contains("pickup")) {
-                categorizedImages.get("Pickup").add(file.getName());
-            } else {
-                System.out.println("Uncategorized file: " + file.getName());
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName().toLowerCase();
+                if (fileName.contains("body")) {
+                    categorizedImages.get("Body").add(file.getName());
+                } else if (fileName.contains("pickguard")) {
+                    categorizedImages.get("Pickguard").add(file.getName());
+                } else if (fileName.contains("bridge")) {
+                    categorizedImages.get("Bridge").add(file.getName());
+                } else if (fileName.contains("pickup")) {
+                    categorizedImages.get("Pickup").add(file.getName());
+                }
             }
         }
 
         return categorizedImages;
     }
 
-    private JPanel createHorizontalControlPanelSection(String label, ArrayList<String> imageGroup, ArrayList<JLabel> imageLabels) {
-        JPanel sectionPanel = new JPanel(new BorderLayout());
-        JButton headerButton = new JButton(label);
-        sectionPanel.add(headerButton, BorderLayout.NORTH);
-
-        JPanel radioPanel = new JPanel(new GridLayout(0, 1));
-        ButtonGroup buttonGroup = new ButtonGroup();
-
-        for (int i = 0; i < imageGroup.size(); i++) {
-            JRadioButton radioButton = new JRadioButton(imageGroup.get(i));
-            int index = i;
-            radioButton.addActionListener(e -> {
-                for (int j = 0; j < imageLabels.size(); j++) {
-                    imageLabels.get(j).setVisible(j == index);
-                }
-            });
-
-            radioPanel.add(radioButton);
-            buttonGroup.add(radioButton);
-        }
-
-        sectionPanel.add(radioPanel);
-
-        headerButton.addActionListener(e -> {
-            boolean isVisible = radioPanel.isVisible();
-            radioPanel.setVisible(!isVisible);
-        });
-
-        return sectionPanel;
-    }
-
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Main frame = new Main();
-            frame.setVisible(true);
-        });
+        launch(args);
     }
 }
