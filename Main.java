@@ -6,8 +6,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.shape.Circle;
-import javafx.scene.paint.Color; // Import for Color
-import javafx.geometry.Pos;  // Import for Pos
+import javafx.scene.paint.Color;
+import javafx.geometry.Pos;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import java.util.HashMap;
 public class Main extends Application {
 
     private static final int SCALING_FACTOR = 2;
+    private static final double BUTTON_WIDTH = 150;  // Set a fixed width for all buttons
 
     private ArrayList<ImageView> bodyImages = new ArrayList<>();
     private ArrayList<ImageView> pickguardImages = new ArrayList<>();
@@ -37,6 +38,8 @@ public class Main extends Application {
 
         // Create a container to center the images on the left side
         StackPane imagePane = new StackPane(); // Holds the images
+        imagePane.setStyle("-fx-border-color: black; -fx-border-width: 2; -fx-padding: 10;"); // Add border
+
         root.setCenter(imagePane);
 
         VBox controlPanel = new VBox();
@@ -63,6 +66,7 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+
     private void populateImages(ArrayList<String> imagePaths, ArrayList<ImageView> imageViews, StackPane imagePane) {
         for (String imagePath : imagePaths) {
             File imgFile = new File("Resources/TelecasterParts/" + imagePath);
@@ -74,6 +78,8 @@ public class Main extends Application {
                 imageView.setVisible(false); // Hide initially
                 imageViews.add(imageView);
                 imagePane.getChildren().add(imageView);
+            } else {
+                System.out.println("Image not found: " + imagePath); // Log missing images
             }
         }
     }
@@ -83,68 +89,80 @@ public class Main extends Application {
         TitledPane titledPane = new TitledPane();
         titledPane.setText(label);
 
-        ToggleGroup toggleGroup = new ToggleGroup();
-        VBox radioButtonBox = new VBox();
-        radioButtonBox.setSpacing(10); // Add some spacing between buttons
+        VBox buttonBox = new VBox();
+        buttonBox.setSpacing(10); // Add some spacing between buttons
+
+        // Create a ScrollPane for the VBox inside the TitledPane to make it scrollable
+        ScrollPane scrollableButtonBox = new ScrollPane(buttonBox);
+        scrollableButtonBox.setFitToHeight(true);  // Ensure it fits the height of the control panel
 
         for (int i = 0; i < imagePaths.size(); i++) {
             String fileName = imagePaths.get(i);
             ImageView imageView = imageViews.get(i);
 
-            // Create an ImageView to be used as a radio button icon
+            // Extract the description part from the file name (before ".png" or ".jpg")
+            String description = extractDescriptionFromFileName(fileName);
+
+            // Create an ImageView to be used as the button icon
             Image image = new Image("file:Resources/TelecasterParts/" + fileName);
             if (image.isError()) {
                 System.out.println("Error loading image: " + fileName);
             }
 
+            // If the section is "Bridge", increase the image size
+            double iconWidth = label.equals("Bridge") ? 120 : 80; // Increase image width for "Bridge"
+            double iconHeight = label.equals("Bridge") ? 120 : 80; // Increase image height for "Bridge"
+
             ImageView iconImageView = new ImageView(image);
-            iconImageView.setFitWidth(100);  // Increase size for the image
-            iconImageView.setFitHeight(100); // Increase size for the image
+            iconImageView.setFitWidth(iconWidth);  // Set size based on section
+            iconImageView.setFitHeight(iconHeight); // Set size based on section
             iconImageView.setPreserveRatio(true); // Maintain aspect ratio
 
-            // Create a Circle to wrap the image
-            Circle circle = new Circle(50);  // Increase the circle size
-            circle.setFill(Color.WHITE);  // Set the circle background color
-            circle.setStroke(Color.BLACK);  // Set a black stroke around the circle
-            circle.setStrokeWidth(2);
+            // Create a button with this image icon beside the description text
+            Button button = new Button(description);  // Button with description text
+            button.setGraphic(iconImageView);  // Set the image as the graphic for the button
+            button.setContentDisplay(ContentDisplay.LEFT); // Place the image on the left side of the text
 
-            // Position the image inside the circle
-            iconImageView.setClip(circle);  // Clip the image with the circle shape
-
-            // Create a radio button with this image icon inside a circle
-            RadioButton radioButton = new RadioButton();
-            radioButton.setGraphic(iconImageView);  // Set the circle with image as graphic for the radio button
-
-            // Add text to the button for reference
-            Label labelText = new Label("Image " + (i + 1));  // Display text like "Image 1"
-            radioButton.setText(labelText.getText()); // Add text to the radio button
-
-            // Use HBox to arrange image and text horizontally
-            HBox radioButtonContent = new HBox(10);  // Set spacing between image and text
-            radioButtonContent.setAlignment(Pos.CENTER_LEFT); // Align image and text to the left
-            radioButtonContent.getChildren().addAll(iconImageView, labelText); // Stack image and text horizontally
-            radioButton.setGraphic(radioButtonContent);
-
-            // Add ActionListener to toggle visibility of the images
+            // Add ActionListener to handle the visibility of the images
             int index = i; // Keep track of the index for visibility control
-            radioButton.setOnAction(e -> {
+            button.setOnAction(e -> {
                 for (int j = 0; j < imageViews.size(); j++) {
                     imageViews.get(j).setVisible(j == index);
-                    System.out.println("Image " + j + " visibility: " + (j == index));
                 }
             });
 
-            // Make sure the radio buttons are visible and have some space between them
-            radioButton.setVisible(true);  // Ensure radio button is visible
-            radioButtonBox.getChildren().add(radioButton);
+            // Style the button to have no background and uniform width
+            button.setStyle("-fx-background-color: transparent; -fx-font-size: 14px; -fx-alignment: center-left;");
+
+            // Add the button to the VBox
+            buttonBox.getChildren().add(button);
         }
 
-        titledPane.setContent(radioButtonBox);
+        titledPane.setContent(scrollableButtonBox); // Set the ScrollPane as the content of the TitledPane
         titledPane.setCollapsible(true);
-        titledPane.setExpanded(false); // Collapse by default
+
+        // Make sure "Body" and "Pickguard" sections are expanded by default
+        if (label.equals("Body") || label.equals("Pickguard")) {
+            titledPane.setExpanded(true);
+        } else {
+            titledPane.setExpanded(false); // Keep other sections collapsed by default
+        }
+
         sectionBox.getChildren().add(titledPane);
 
         return sectionBox;
+    }
+
+
+
+
+    // Method to extract description from file name (removes "Body - ", "Pickguard - ", etc.)
+    private String extractDescriptionFromFileName(String fileName) {
+        String[] parts = fileName.split(" - ");  // Split the string by the " - " delimiter
+        if (parts.length > 1) {
+            return parts[1].substring(0, parts[1].lastIndexOf('.'));  // Return description part without extension
+        }
+        return fileName;  // In case the file name does not match the expected pattern
     }
 
     private HashMap<String, ArrayList<String>> loadImagesFromDirectory(String directoryPath) {
@@ -165,15 +183,16 @@ public class Main extends Application {
 
         if (files != null) {
             for (File file : files) {
-                String fileName = file.getName().toLowerCase();
-                if (fileName.contains("body")) {
-                    categorizedImages.get("Body").add(file.getName());
-                } else if (fileName.contains("pickguard")) {
-                    categorizedImages.get("Pickguard").add(file.getName());
-                } else if (fileName.contains("bridge")) {
-                    categorizedImages.get("Bridge").add(file.getName());
-                } else if (fileName.contains("pickup")) {
-                    categorizedImages.get("Pickup").add(file.getName());
+                String fileName = file.getName();
+
+                if (fileName.contains("Body")) {
+                    categorizedImages.get("Body").add(fileName);
+                } else if (fileName.contains("Pickguard")) {
+                    categorizedImages.get("Pickguard").add(fileName);
+                } else if (fileName.contains("Bridge")) {
+                    categorizedImages.get("Bridge").add(fileName);
+                } else if (fileName.contains("Pickup")) {
+                    categorizedImages.get("Pickup").add(fileName);
                 }
             }
         }
