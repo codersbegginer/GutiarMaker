@@ -1,23 +1,20 @@
 /* General styling for the application */
 .stack-pane {
     -fx-alignment: center;
-    -fx-padding: 20px; /* Padding around the drawing area */
+    -fx-padding: 0; /* Remove padding around the drawing area */
     -fx-background-color: #f4f4f4; /* Light background color */
-    -fx-border-color: black; /* Black border for the image container */
-    -fx-border-width: 2px; /* Border width */
-    -fx-border-radius: 5px; /* Optional rounded corners */
+    /* Removed the border-related properties */
 }
 
 /* Style the control panel */
 .vbox {
     font-size: 16px;
-    spacing: 10px;
-    padding: 20px;
+    spacing: 0; /* Remove spacing between control panel elements */
+    padding: 0; /* Remove padding inside control panel */
     -fx-background-color: #ffffff; /* White background for the control panel */
     -fx-border-color: #cccccc; /* Light grey border around control panel */
     -fx-border-width: 1px; /* Border width */
     -fx-border-radius: 5px; /* Optional rounded corners */
-    -fx-margin-right: 20px; /* Add space between control panel and the drawing area */
 }
 
 /* Style for the titled pane */
@@ -30,7 +27,7 @@
 
 /* Style for the scrollable button box inside the TitledPane */
 .scroll-pane {
-    -fx-padding: 10px; /* Add some padding inside the scrollable area */
+    -fx-padding: 0; /* Remove padding inside the scrollable area */
 }
 
 /* Style the buttons inside the control panel */
@@ -38,14 +35,14 @@
     -fx-background-color: transparent; /* Transparent background for buttons */
     -fx-font-size: 14px; /* Font size for button text */
     -fx-alignment: center-left; /* Align the text and image to the left */
-    -fx-min-width: 150px; /* Set minimum width for buttons */
+    -fx-min-width: 0; /* Remove minimum width for buttons */
     -fx-pref-height: 80px; /* Set preferred height for buttons */
-    -fx-padding: 10px; /* Padding around button content */
+    -fx-padding: 0; /* Remove padding around button content */
 }
 
 /* Style the button icon (the image on the button) */
 .button .graphic {
-    -fx-padding: 0;
+    -fx-padding: 0; /* Remove padding inside the button graphic */
     -fx-background-radius: 50%; /* Round the image */
     -fx-background-color: transparent;
     -fx-pref-width: 60px;
@@ -71,4 +68,15 @@
 /* Hover effect for the buttons */
 .button:hover .graphic {
     -fx-opacity: 0.8; /* Slight transparency effect when hovering */
+}
+
+/* Layout the HBox and VBox to remove extra space between items */
+.hbox, .vbox {
+    -fx-spacing: 0; /* Remove spacing between elements */
+}
+
+/* Remove any padding or margin from StackPanes */
+.stack-pane, .hbox, .vbox, .titled-pane {
+    -fx-padding: 0;
+    -fx-margin: 0;
 }
