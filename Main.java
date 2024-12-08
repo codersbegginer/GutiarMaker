@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import javafx.scene.shape.Circle;
 import javafx.scene.paint.Color;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -94,47 +95,52 @@ public class Main extends Application {
 
         // Create a ScrollPane for the VBox inside the TitledPane to make it scrollable
         ScrollPane scrollableButtonBox = new ScrollPane(buttonBox);
-        scrollableButtonBox.setFitToHeight(true);  // Ensure it fits the height of the control panel
+        scrollableButtonBox.setFitToHeight(true); // Ensure it fits the height of the control panel
 
         for (int i = 0; i < imagePaths.size(); i++) {
             String fileName = imagePaths.get(i);
             ImageView imageView = imageViews.get(i);
 
-            // Extract the description part from the file name (before ".png" or ".jpg")
             String description = extractDescriptionFromFileName(fileName);
 
-            // Create an ImageView to be used as the button icon
             Image image = new Image("file:Resources/TelecasterParts/" + fileName);
             if (image.isError()) {
                 System.out.println("Error loading image: " + fileName);
             }
 
-            // If the section is "Bridge", increase the image size
-            double iconWidth = label.equals("Bridge") ? 120 : 80; // Increase image width for "Bridge"
-            double iconHeight = label.equals("Bridge") ? 120 : 80; // Increase image height for "Bridge"
+            double iconWidth = 80; // Default width for all sections
+            double iconHeight = 80; // Default height for all sections
 
             ImageView iconImageView = new ImageView(image);
-            iconImageView.setFitWidth(iconWidth);  // Set size based on section
-            iconImageView.setFitHeight(iconHeight); // Set size based on section
-            iconImageView.setPreserveRatio(true); // Maintain aspect ratio
+            iconImageView.setFitWidth(iconWidth);
+            iconImageView.setFitHeight(iconHeight);
+            iconImageView.setPreserveRatio(true);
 
-            // Create a button with this image icon beside the description text
-            Button button = new Button(description);  // Button with description text
-            button.setGraphic(iconImageView);  // Set the image as the graphic for the button
-            button.setContentDisplay(ContentDisplay.LEFT); // Place the image on the left side of the text
+            // Apply zoom for "Pickups" section
+            if (label.equals("Pickups") || label.equals("Bridge")) {
+                double zoomFactor = 3; // Define the zoom level
+                double viewportWidth = image.getWidth() / zoomFactor; // Calculate the viewport width
+                double viewportHeight = image.getHeight() / zoomFactor; // Calculate the viewport height
+                double viewportX = (image.getWidth() - viewportWidth) / 2; // Center horizontally
+                double viewportY = image.getHeight() - viewportHeight; // Focus on the bottom part
 
-            // Add ActionListener to handle the visibility of the images
-            int index = i; // Keep track of the index for visibility control
+                // Apply a viewport to the ImageView
+                iconImageView.setViewport(new Rectangle2D(viewportX, viewportY, viewportWidth, viewportHeight));
+            }
+
+            Button button = new Button(description);
+            button.setGraphic(iconImageView);
+            button.setContentDisplay(ContentDisplay.LEFT);
+
+            button.setStyle("-fx-background-color: transparent; -fx-font-size: 14px; -fx-alignment: center-left;");
+
+            int index = i;
             button.setOnAction(e -> {
                 for (int j = 0; j < imageViews.size(); j++) {
                     imageViews.get(j).setVisible(j == index);
                 }
             });
 
-            // Style the button to have no background and uniform width
-            button.setStyle("-fx-background-color: transparent; -fx-font-size: 14px; -fx-alignment: center-left;");
-
-            // Add the button to the VBox
             buttonBox.getChildren().add(button);
         }
 
@@ -152,6 +158,8 @@ public class Main extends Application {
 
         return sectionBox;
     }
+
+
 
 
 
