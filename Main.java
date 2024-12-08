@@ -134,20 +134,20 @@ public class Main extends Application {
 
             button.setStyle("-fx-background-color: transparent; -fx-font-size: 14px; -fx-alignment: center-left;");
 
-            int index = i;
-            button.setOnAction(e -> {
-                for (int j = 0; j < imageViews.size(); j++) {
-                    imageViews.get(j).setVisible(j == index);
-                }
-            });
+        int index = i;
+        button.setOnAction(e -> {
+            for (int j = 0; j < imageViews.size(); j++) {
+                imageViews.get(j).setVisible(j == index);
+            }
+        });
 
-            buttonBox.getChildren().add(button);
-        }
+        buttonBox.getChildren().add(button);
+    }
 
         titledPane.setContent(scrollableButtonBox); // Set the ScrollPane as the content of the TitledPane
         titledPane.setCollapsible(true);
 
-        // Make sure "Body" and "Pickguard" sections are expanded by default
+    // Make sure "Body" and "Pickguard" sections are expanded by default
         if (label.equals("Body") || label.equals("Pickguard")) {
             titledPane.setExpanded(true);
         } else {
