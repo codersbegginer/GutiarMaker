@@ -16,8 +16,8 @@ public class LoginForm extends JFrame implements ActionListener{
             counterLabel = new JLabel("Please wait for: "),
             attemptLabel = new JLabel("Attempts Made: "),
 
-    advert = new JLabel(new ImageIcon("Resources/Logo/logindesign.png")),
-            logo = new JLabel(new ImageIcon("Resources/Logo/Logo.png"));
+    advert = new JLabel(new ImageIcon("C:\\Users\\cesar\\OneDrive\\Desktop\\Guitar Shop\\src\\Logo\\R.gif")),
+            logo = new JLabel(new ImageIcon("C:\\Users\\cesar\\OneDrive\\Desktop\\Guitar Shop\\src\\Logo\\Logo.png"));
 
 
     JButton     forgotButton = new JButton("Forgot Password?"),
