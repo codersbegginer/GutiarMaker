@@ -6,23 +6,25 @@ import javax.swing.*;
 public class LoginForm extends JFrame implements ActionListener{
 
     //LOGIN FORM
-    JLabel        titleLabel = new JLabel("TitleProduct" ),
-                   nameLabel = new JLabel("Username: "   ),
-                   passLabel = new JLabel("Password: "   ),
+    JLabel        titleLabel = new JLabel("Lacandazo" ),
+            titleLabel2 = new JLabel("Guitar Maker"),
+            nameLabel = new JLabel("Username: "   ),
+            passLabel = new JLabel("Password: "   ),
 
-                invalidLabel = new JLabel("Invalid Credentials"),
-             maxAttemptLabel = new JLabel("Maximum Attempts Reached"),
-                counterLabel = new JLabel("Please wait for: "),
-                attemptLabel = new JLabel("Attempts Made: "),
+    invalidLabel = new JLabel("Invalid Credentials"),
+            maxAttemptLabel = new JLabel("Maximum Attempts Reached"),
+            counterLabel = new JLabel("Please wait for: "),
+            attemptLabel = new JLabel("Attempts Made: "),
 
-                      advert = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("Resources/logo/loginform design.png"))),
-                        logo = new JLabel(new ImageIcon(getClass().getClassLoader().getResource("Resources/logo/MainLogo.png")));                         
-    
+    advert = new JLabel(new ImageIcon("Resources/Logo/logindesign.png")),
+            logo = new JLabel(new ImageIcon("Resources/Logo/Logo.png"));
+
+
     JButton     forgotButton = new JButton("Forgot Password?"),
-                 loginButton = new JButton("LOG IN"),
-                signUpButton = new JButton("SIGN UP"),
-              showPassButton = new JButton("X"),
-                   clickHere = new JButton("Click Here");   
+            loginButton = new JButton("LOG IN"),
+            signUpButton = new JButton("SIGN UP"),
+            showPassButton = new JButton("X"),
+            clickHere = new JButton("Click Here");
 
     JTextField      username = new JTextField();
     JPasswordField  password = new JPasswordField();
@@ -31,12 +33,12 @@ public class LoginForm extends JFrame implements ActionListener{
     AccountCredentials verification = new AccountCredentials();
 
     boolean   passVisibility = false,
-                  maxCounter = false;
+            maxCounter = false;
 
     int         errorCounter = 0,
-                 maxAttempts = 0,
-                   countdown = 0,
-                 windowState = 0;
+            maxAttempts = 0,
+            countdown = 0,
+            windowState = 0;
 
     //LOGIN FORM
     JPanel                    loginPanel = new JPanel();
@@ -44,19 +46,22 @@ public class LoginForm extends JFrame implements ActionListener{
     SignUpForm             signUpHandler = new SignUpForm();
     //FORGOT PASSWORD FORM
     ForgotPasswordForm forgotPassHandler = new ForgotPasswordForm();
+    //MAIN FRAME (SHOP CLASS)
+    MainFrame mainShopMenu = new MainFrame();
 
     LoginForm() {
         //Main Frame
         setTitle("Login Information");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000,700);
+        setSize(1280,720);
         setLocationRelativeTo(null);
         setLayout(null);
         setVisible(true);
 
-        add(loginPanel);
         add(signUpHandler);
         add(forgotPassHandler);
+        add(loginPanel);
+
 
         signUpHandler.backtoLogin.addActionListener(this);
         signUpHandler.confirm.addActionListener(this);
@@ -71,9 +76,10 @@ public class LoginForm extends JFrame implements ActionListener{
         signUpButton   .setFont(new Font("Times New Roman", Font.BOLD, 20));
         showPassButton .setFont(new Font("Times New Roman", Font.BOLD, 20));
 
-        titleLabel     .setFont(new Font("Times New Roman", Font.BOLD, 45));
-        nameLabel      .setFont(new Font("Times New Roman", Font.BOLD, 20));
-        passLabel      .setFont(new Font("Times New Roman", Font.BOLD, 20));
+        titleLabel     .setFont(new Font("Times New Roman", Font.BOLD, 60));
+        titleLabel2    .setFont(new Font("Times New Roman", Font.BOLD, 35));
+        nameLabel      .setFont(new Font("Times New Roman", Font.BOLD, 25));
+        passLabel      .setFont(new Font("Times New Roman", Font.BOLD, 25));
 
         invalidLabel   .setFont(new Font("Times New Roman", Font.BOLD, 18));
         maxAttemptLabel.setFont(new Font("Times New Roman", Font.BOLD, 18));
@@ -81,31 +87,32 @@ public class LoginForm extends JFrame implements ActionListener{
         attemptLabel   .setFont(new Font("Times New Roman", Font.BOLD, 18));
         clickHere      .setFont(new Font("Times New Roman", Font.BOLD, 20));
 
-        username       .setFont(new Font("Times New Roman", Font.BOLD, 15));
-        password       .setFont(new Font("Times New Roman", Font.BOLD, 15));
+        username       .setFont(new Font("Times New Roman", Font.BOLD, 25));
+        password       .setFont(new Font("Times New Roman", Font.BOLD, 25));
 
         //Bounds
-        loginPanel     .setBounds(  0,   0,1000, 700);
-        forgotButton   .setBounds(700, 320, 200,  50);
-        loginButton    .setBounds(700, 370, 200,  50);
-        signUpButton   .setBounds(700, 440, 200,  50);
-        showPassButton .setBounds(875, 275,  50,  40);
+        loginPanel     .setBounds(   0,   0, 1280, 720);
+        forgotButton   .setBounds( 830, 575,  200,  50);
+        loginButton    .setBounds( 950, 525,  200,  50);
+        signUpButton   .setBounds( 700, 525,  200,  50);
+        showPassButton .setBounds(1100, 410,   50,  50);
 
-        titleLabel     .setBounds(710,  75, 500,  50);
-        nameLabel      .setBounds(675, 160, 500,  50);
-        passLabel      .setBounds(675, 235, 500,  50);
+        titleLabel     .setBounds( 875,  75,  500,  50);
+        titleLabel2    .setBounds( 910, 110,  500,  50);
+        nameLabel      .setBounds( 700, 260,  500,  50);
+        passLabel      .setBounds( 700, 370,  500,  50);
 
-        invalidLabel   .setBounds(725, 305, 500,  50);
-        maxAttemptLabel.setBounds(685, 305, 500,  50);
-        counterLabel   .setBounds(695, 325, 500,  50);
-        attemptLabel   .setBounds(725, 325, 500,  50);
-        clickHere      .setBounds(700, 395, 200,  50);
+        invalidLabel   .setBounds( 830, 445,  500,  50);
+        maxAttemptLabel.setBounds( 805, 445,  500,  50);
+        counterLabel   .setBounds( 830, 465,  500,  50);
+        attemptLabel   .setBounds( 830, 465,  500,  50);
+        clickHere      .setBounds( 950, 525,  200,  50);
 
-        advert         .setBounds(  0, -30, 600, 730);
-        logo           .setBounds(645,  75,  50,  50);
+        advert         .setBounds(   0, -30,  600, 730);
+        logo           .setBounds( 630,  30,  200, 200);
 
-        username       .setBounds(675, 200, 250,  40);
-        password       .setBounds(675, 275, 200,  40);
+        username       .setBounds( 700, 300,  450,  50);
+        password       .setBounds( 700, 410,  400,  50);
 
         //Additionals
         forgotButton   .setVisible(true );
@@ -113,13 +120,14 @@ public class LoginForm extends JFrame implements ActionListener{
         signUpButton   .setVisible(true );
         showPassButton .setVisible(true );
         titleLabel     .setVisible(true );
+        titleLabel2    .setVisible(true );
         nameLabel      .setVisible(true );
         passLabel      .setVisible(true );
 
-        invalidLabel   .setVisible(false);
-        maxAttemptLabel.setVisible(false);
-        counterLabel   .setVisible(false);
-        attemptLabel   .setVisible(false);
+        invalidLabel   .setVisible(true);
+        maxAttemptLabel.setVisible(true);
+        counterLabel   .setVisible(true);
+        attemptLabel   .setVisible(true);
         clickHere      .setVisible(false);
         signUpHandler  .setVisible(false);
 
@@ -135,7 +143,6 @@ public class LoginForm extends JFrame implements ActionListener{
         showPassButton .setFocusPainted(false);
 
         forgotButton   .addActionListener(this);
-        loginButton    .addActionListener(this);
         signUpButton   .addActionListener(this);
         showPassButton .addActionListener(this);
         clickHere      .removeActionListener(this);
@@ -153,6 +160,7 @@ public class LoginForm extends JFrame implements ActionListener{
         loginPanel.add(signUpButton   );
         loginPanel.add(showPassButton );
         loginPanel.add(titleLabel     );
+        loginPanel.add(titleLabel2    );
         loginPanel.add(nameLabel      );
         loginPanel.add(passLabel      );
         loginPanel.add(invalidLabel   );
@@ -173,12 +181,24 @@ public class LoginForm extends JFrame implements ActionListener{
         if(windowState==0){LoginFunctions(event);}
         else if (windowState==1){SignUpFunctions(event);}
         else if (windowState==2){ForgotPassFunctions(event);}
+        else if (windowState==3){mainShopFunctions(event);}
     }
 
     void LoginLayout(){
-        loginPanel.setVisible(true);
-        signUpHandler.setVisible(false);
+        signUpHandler    .setVisible(false);
         forgotPassHandler.setVisible(false);
+        mainShopMenu     .setVisible(false);
+        loginPanel       .setVisible( true);
+
+        invalidLabel     .setVisible(false);
+        maxAttemptLabel  .setVisible(false);
+        counterLabel     .setVisible(false);
+        attemptLabel     .setVisible(false);
+        clickHere        .setVisible(false);
+        loginButton      .setVisible( true);
+
+        loginButton.addActionListener (this);
+        clickHere.removeActionListener(this);
         windowState  = 0;
         errorCounter = 0;
     }
@@ -186,11 +206,18 @@ public class LoginForm extends JFrame implements ActionListener{
         windowState = 1;
         signUpHandler.setVisible(true);
         loginPanel.setVisible(false);
+        loginButton.removeActionListener(this);
     }
     void ForgotPassLayout(){
         windowState = 2;
         loginPanel.setVisible(false);
         forgotPassHandler.setVisible(true);
+        loginButton.removeActionListener(this);
+    }
+    void MainLayout(){
+        windowState = 3;
+        loginPanel.setVisible(false);
+        mainShopMenu.setVisible(true);
     }
     void LoginFunctions(Object event){
         if(event == showPassButton) {
@@ -209,12 +236,14 @@ public class LoginForm extends JFrame implements ActionListener{
         if(event == signUpButton) {SignUpLayout();   }
 
         if(event == clickHere){
-            countdown --;
-            counterLabel.setText("Please wait for " + countdown    + " clicks");
-            if(maxCounter && countdown==0){
+            if(countdown==1){
                 maxCounter = false;
                 errorCounter = 0;
                 LoginLayout();}
+            else {
+                countdown --;
+                counterLabel.setText("Please wait for " + countdown    + " clicks");
+            }
         }
     }
     void SignUpFunctions(Object event){
@@ -232,8 +261,8 @@ public class LoginForm extends JFrame implements ActionListener{
         }
         if(event == forgotPassHandler.confirmButton){
             String[] answers = {forgotPassHandler.answer1.getText(),
-                                forgotPassHandler.answer2.getText(),
-                                forgotPassHandler.answer3.getText()};
+                    forgotPassHandler.answer2.getText(),
+                    forgotPassHandler.answer3.getText()};
             String[] data = verification.checkStoredAnswers(verification.x,answers);
             if(verification.confirmation){
                 JOptionPane.showMessageDialog(this,"Username: " + data[0] + "\nPassword: " + data[1]);
@@ -248,17 +277,22 @@ public class LoginForm extends JFrame implements ActionListener{
             }
         }
     }
+    void mainShopFunctions(Object event){
+
+    }
     void verify(){
         boolean verify = false;
         String[][] credentials = verification.getStoredData();
         for (String[] credential : credentials) {
             if (credential[0].equals(username.getText()) && credential[1].equals(new String(password.getPassword()))) {
                 verify = true;
+
             }
         }
         if(!verify){error();}
         else{
             //OPEN MAIN SHOPPING FRAME
+            MainLayout();
         }
     }
     void error(){
@@ -273,10 +307,6 @@ public class LoginForm extends JFrame implements ActionListener{
         errorLayout();
     }
     void errorLayout(){
-        forgotButton   .setBounds(700, 350, 200, 50);
-        loginButton    .setBounds(700, 400, 200, 50);
-        signUpButton   .setBounds(700, 470, 200, 50);
-
         loginButton    .setVisible(!maxCounter);
         clickHere      .setVisible(maxCounter);
 
@@ -292,27 +322,27 @@ public class LoginForm extends JFrame implements ActionListener{
     void addAccount(){
         String display = "";
         if (new String(signUpHandler.password    .getPassword()).isEmpty() ||
-            new String(signUpHandler.confpassword.getPassword()).isEmpty() ||
-                       signUpHandler.username    .getText()     .isEmpty() ||
-                       signUpHandler.emailAddress.getText()     .isEmpty() ||
-                       signUpHandler.answer1     .getText()     .isEmpty() ||
-                       signUpHandler.answer2     .getText()     .isEmpty() ||
-                       signUpHandler.answer3     .getText()     .isEmpty()  )
-            {display = "Credentials should not be empty.";}
+                new String(signUpHandler.confpassword.getPassword()).isEmpty() ||
+                signUpHandler.username    .getText()     .isEmpty() ||
+                signUpHandler.emailAddress.getText()     .isEmpty() ||
+                signUpHandler.answer1     .getText()     .isEmpty() ||
+                signUpHandler.answer2     .getText()     .isEmpty() ||
+                signUpHandler.answer3     .getText()     .isEmpty()  )
+        {display = "Credentials should not be empty.";}
 
         else if(!new String(signUpHandler.password.getPassword()).equals(new String(signUpHandler.confpassword.getPassword()))){
             display = "Passwords do not match.";}
         else {
-        verification.checkExistingData(signUpHandler.username.getText(),signUpHandler.emailAddress.getText());
-        if(verification.existingEmail||verification.existingName){
-            display = "Account Credentials already exists";}
-        else{
-            String[] data    = {username.getText(),new String(password.getPassword())};
-            String[] answers = {signUpHandler.answer1.getText(),
-                                signUpHandler.answer2.getText(),
-                                signUpHandler.answer3.getText()};
-            verification.setStoredData(data,signUpHandler.emailAddress.getText(),answers);
-            display = "Account successfully signed up.";}
+            verification.checkExistingData(signUpHandler.username.getText(),signUpHandler.emailAddress.getText());
+            if(verification.existingEmail||verification.existingName){
+                display = "Account Credentials already exists";}
+            else{
+                String[] data    = {username.getText(),new String(password.getPassword())};
+                String[] answers = {signUpHandler.answer1.getText(),
+                        signUpHandler.answer2.getText(),
+                        signUpHandler.answer3.getText()};
+                verification.setStoredData(data,signUpHandler.emailAddress.getText(),answers);
+                display = "Account successfully signed up.";}
         }
         JOptionPane.showMessageDialog(this,display);
     }
