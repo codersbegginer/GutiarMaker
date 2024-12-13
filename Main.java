@@ -205,8 +205,18 @@ public class Main extends Application {
             iconImageView.setFitHeight(iconHeight);
             iconImageView.setPreserveRatio(true);
 
+            if (label.equals("Pickguard"))  {
+                double zoomFactor = 2; // Define the zoom level
+                double viewportWidth = image.getWidth() / zoomFactor; // Calculate the viewport width
+                double viewportHeight = image.getHeight() / zoomFactor; // Calculate the viewport height
+                double viewportX = (image.getWidth() - viewportWidth) / 2; // Center horizontally
+                double viewportY = image.getHeight() - viewportHeight; // Focus on the bottom part
+
+                // Apply a viewport to the ImageView
+                iconImageView.setViewport(new Rectangle2D(viewportX, viewportY, viewportWidth, viewportHeight));
+            }
             // Apply zoom for "Pickups" and "Bridge"
-            if (label.equals("Pickups") || label.equals("Bridge")) {
+            if (label.equals("Pickups") || label.equals("Bridge"))  {
                 double zoomFactor = 3; // Define the zoom level
                 double viewportWidth = image.getWidth() / zoomFactor; // Calculate the viewport width
                 double viewportHeight = image.getHeight() / zoomFactor; // Calculate the viewport height
@@ -221,7 +231,7 @@ public class Main extends Application {
             button.setGraphic(iconImageView);
             button.setContentDisplay(ContentDisplay.LEFT);
 
-            button.setStyle("-fx-background-color: transparent; -fx-font-size: 14px; -fx-alignment: center-left;");
+            button.setStyle("-fx-background-color: #ede5dc; -fx-font-size: 14px; -fx-alignment: center-left;");
 
             int index = i;
             button.setOnAction(e -> {
@@ -285,7 +295,7 @@ public class Main extends Application {
             button.setGraphic(iconImageView);
             button.setContentDisplay(ContentDisplay.LEFT);
 
-            button.setStyle("-fx-background-color: transparent; -fx-font-size: 14px; -fx-alignment: center-left;");
+            button.setStyle("-fx-background-color: #ede5dc; -fx-font-size: 14px; -fx-alignment: center-left;");
 
             int index = i;
             button.setOnAction(e -> {
